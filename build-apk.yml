@@ -14,6 +14,10 @@ jobs:
 
       - name: Unpack Android project
         run: unzip -o android-project.zip -d android-build
+        - name: Fix PDF download Toasts
+  run: |
+    sed -i 's/Toast.makeText(this, "PDF download started"/Toast.makeText(MainActivity.this, "PDF download started"/' android-build/app/src/main/java/com/glre/projectsignoff/MainActivity.java
+    sed -i 's/Toast.makeText(this, "Unable to download PDF"/Toast.makeText(MainActivity.this, "Unable to download PDF"/' android-build/app/src/main/java/com/glre/projectsignoff/MainActivity.java
 
       - name: Set up Java
         uses: actions/setup-java@v4
