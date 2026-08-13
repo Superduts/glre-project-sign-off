@@ -113,7 +113,72 @@ input,textarea{width:100%;padding:12px;border:1px solid #cfd6e2;border-radius:9p
 const $=id=>document.getElementById(id), DB='glre_jobs_v3', DRAFT='glre_drafts_v3';
 let decision='',sigReady={},photos=[],editingDraft=null;
 
+// ======================================================
+// GLRE LOCAL DATABASE
+// ======================================================
 
+function openGLREDB(){
+  return new Promise((resolve,reject)=>{
+    const req = indexedDB.open(DB,1);
+
+    req.onupgradeneeded = e => {
+      const db = e.target.result;
+
+      if(!db.objectStoreNames.contains('jobs')){
+        db.createObjectStore('jobs',{keyPath:'id'});
+      }
+
+      if(!db.objectStoreNames.contains('drafts')){
+        db.createObjectStore('drafts',{keyPath:'id'});
+      }
+    };
+
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+function idbPut(store,value){
+  return openGLREDB().then(db=>{
+    return new Promise((resolve,reject)=>{
+      const tx = db.transaction(store,'readwrite');
+
+      tx.objectStore(store).put(value);
+
+      tx.oncomplete = () => resolve(value);
+      tx.onerror = () => reject(tx.error);
+    });
+  });
+}
+
+function idbDelete(store,key){
+  return openGLREDB().then(db=>{
+    return new Promise((resolve,reject)=>{
+      const tx = db.transaction(store,'readwrite');
+
+      tx.objectStore(store).delete(key);
+
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+  });
+}
+
+function idbAll(store){
+  return openGLREDB().then(db=>{
+    return new Promise((resolve,reject)=>{
+      const tx = db.transaction(store,'readonly');
+      const req = tx.objectStore(store).getAll();
+
+      req.onsuccess = () => resolve(req.result || []);
+      req.onerror = () => reject(req.error);
+    });
+  });
+}
+
+async function migrateLocalJobs(){
+  return true;
+}
 function show(id){
 document.querySelectorAll('.screen').forEach(x=>x.classList.add('hidden'));$(id).classList.remove('hidden');
 if(id==='history')renderHistory();if(id==='drafts')renderDrafts();if(id==='customer')setupCanvas('customerSig');
