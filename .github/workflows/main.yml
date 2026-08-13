@@ -35,12 +35,7 @@ jobs:
         run: |
           echo "Looking for Android project..."
           find android-project -name settings.gradle -o -name settings.gradle.kts
-                - name: Find MainActivity
-                run: |
-          echo "Looking for MainActivity.java..."
-          find android-project -name "MainActivity.java
-          
-        
+
       - name: Build APK
         run: |
           PROJECT_DIR=$(dirname "$(find android-project -name settings.gradle -o -name settings.gradle.kts | head -n 1)")
